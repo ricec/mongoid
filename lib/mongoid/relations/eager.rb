@@ -4,6 +4,7 @@ require "mongoid/relations/eager/belongs_to"
 require "mongoid/relations/eager/has_one"
 require "mongoid/relations/eager/has_many"
 require "mongoid/relations/eager/has_and_belongs_to_many"
+require "mongoid/relations/lazy_eager/has_many"
 
 module Mongoid
   module Relations
@@ -33,12 +34,16 @@ module Mongoid
         self.eager_loaded = true
       end
 
-      def preload(relations, docs)
+      def lazy?
+        criteria.includes_lazily?
+      end
 
+      def preload(relations, docs)
         relations.group_by do |metadata|
           metadata.relation
         end.each do |relation, associations|
-          relation.eager_load_klass.new(associations, docs).run
+          method = lazy? ? :lazy_eager_load_klass : :eager_load_klass
+          relation.public_send(method).new(associations, docs).run
         end
       end
     end

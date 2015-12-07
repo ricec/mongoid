@@ -574,6 +574,10 @@ module Mongoid
             Relations::Eager::HasMany
           end
 
+          def lazy_eager_load_klass
+            Relations::LazyEager::HasMany
+          end
+
           # Returns true if the relation is an embedded one. In this case
           # always false.
           #

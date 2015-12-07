@@ -224,6 +224,10 @@ module Mongoid
       clone
     end
 
+    def includes_lazily?
+      @includes_lazily
+    end
+
     # Get a list of criteria that are to be executed for eager loading.
     #
     # @example Get the eager loading inclusions.
@@ -358,6 +362,11 @@ module Mongoid
       clone.tap do |criteria|
         criteria.options.merge!(read: value)
       end
+    end
+
+    def with_lazy_includes
+      @includes_lazily = true
+      self
     end
 
     # Overriden to exclude _id from the fields.
@@ -527,6 +536,7 @@ module Mongoid
     # @since 1.0.0
     def initialize_copy(other)
       @inclusions = other.inclusions.dup
+      @includes_lazily = other.includes_lazily?
       @scoping_options = other.scoping_options
       @documents = other.documents.dup
       @context = nil

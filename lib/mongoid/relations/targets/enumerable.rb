@@ -173,6 +173,13 @@ module Mongoid
           unless block_given?
             return to_enum
           end
+
+          if !_loaded? && @preloader
+            docs = @preloader[_unloaded]
+            @_loaded = docs.map { |doc| [doc.id, doc] }.to_h
+            @executed = true
+          end
+
           if _loaded?
             _loaded.each_pair do |id, doc|
               document = _added.delete(doc._id) || doc
@@ -329,6 +336,10 @@ module Mongoid
         # @since 2.1.0
         def _loaded?
           !!@executed
+        end
+
+        def preload_with(&block)
+          @preloader = block
         end
 
         # Provides the data needed to Marshal.dump an enumerable proxy.
